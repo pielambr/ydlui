@@ -1,7 +1,8 @@
 import os
 import tkinter.messagebox as mbox
+import tkinter.filedialog as file_dialog
 from threading import Thread
-from tkinter import Tk, Frame, Checkbutton, BooleanVar, BOTH, Label, Button, StringVar, Entry, Text
+from tkinter import Tk, Frame, Checkbutton, BooleanVar, BOTH, Label, StringVar, Entry, Text, Button
 
 from youtube_dl import YoutubeDL
 
@@ -15,6 +16,7 @@ class YdlGUI(Frame):
         # Initialise variables
         self._extract_audio = BooleanVar()
         self._video_url = StringVar()
+        self._output_path = StringVar()
         # Initialise
         self._logger = LogWindow(self)
         self._init_ui()
@@ -30,15 +32,29 @@ class YdlGUI(Frame):
         cb_extract_audio = Checkbutton(self, var=self._extract_audio, text="Only keep audio")
         cb_extract_audio.pack()
         cb_extract_audio.place(x=20, y=60)
+        # Button to browse for location
+        b_folder_choose = Button(self, text="Choose output directory", command=self.ask_directory)
+        b_folder_choose.place(x=150, y=90)
         # Button to start downloading
         b_start_download = Button(self, text="Start download", command=self.download)
         b_start_download.place(x=20, y=90)
         # Log window to log progress
         self._logger.place(x=20, y=130)
 
+    def ask_directory(self):
+        self._output_path.set(file_dialog.askdirectory())
+
     def start_youtube_dl(self):
         # Start downloading the specified url
-        output_tmpl = os.path.dirname(os.path.abspath(__file__)) + '/%(title)s-%(id)s.%(ext)s'
+        if self._output_path.get():
+            output_path = self._output_path.get()
+        else:
+            try:
+                output_path = os.path.dirname(os.path.abspath(__file__))
+            except NameError:
+                import sys
+                output_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+        output_tmpl = output_path + '/%(title)s-%(id)s.%(ext)s'
         options = {
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
             'merge_output_format': 'mp4',
@@ -75,16 +91,15 @@ class LogWindow(Text):
         if '_percent_str' in info:
             progress = info['_percent_str']
         else:
-            progress = '100%'
+            progress = '100.0%'
         filename = info['filename'].split(os.sep)[-1]
         self.insert('1.0', "{:s} for {:s} \n".format(progress, filename))
 
 
 def main():
     root = Tk()
-    root.geometry("610x500")
-    root.maxsize(610, 500)
-    root.minsize(610, 500)
+    root.geometry("620x510")
+    root.minsize(620, 510)
     app = YdlGUI(root)
     root.mainloop()
 

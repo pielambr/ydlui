@@ -10,5 +10,7 @@ setup(
     author='Pieterjan Lambrecht',
     author_email='me@pielambr.be',
     description='GUI for youtube-dl',
-    console=['main.py']
+    console=['main.py'],
+    windows=['main.py'],
+    options={'py2exe': {"bundle_files" : 2, "compressed": False  , "unbuffered": False  , "includes": ["tkinter"], "excludes": ["tcl",], "optimize": 0}},
 )
