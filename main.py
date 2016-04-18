@@ -82,7 +82,9 @@ class LogWindow(Text):
 
 def main():
     root = Tk()
-    root.geometry("640x480")
+    root.geometry("610x500")
+    root.maxsize(610, 500)
+    root.minsize(610, 500)
     app = YdlGUI(root)
     root.mainloop()
 
